@@ -35,7 +35,8 @@ Assuming you installed fail2tc with git as described above, then to upgrade you 
 
 ```bash
 
-  git stash
-  git pull
-  git stash pop
+  cd /usr/local/strawberry
+  sudo git stash
+  sudo git pull
+  sudo git stash pop
 ```
