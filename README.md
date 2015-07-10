@@ -29,3 +29,13 @@ A [fail2ban](http://www.fail2ban.org/wiki/index.php/Main_Page) action that sends
 
 - Restart fail2ban
 
+# Upgrading
+
+Assuming you installed fail2tc with git as described above, then to upgrade you just need to update your git repository. Since the credentials are in the fail2tc.properties file, then this file has local changes which we need to first stash, then pop:
+
+```bash
+
+  git stash
+  git pull
+  git stash pop
+```
