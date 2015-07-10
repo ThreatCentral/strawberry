@@ -1,22 +1,37 @@
 #!/bin/bash
 
+# version: 1.0
+#
+# usage: fail2tc <ip> <port>
+#
+# the IP is in standard IPv4 format and the port is a comma separated list of port names as they appear in
+# /etc/services. Only the first port is used from the list because TC supports a single port per IP address.
+#
+
+
 conf_file=/usr/local/fail2tc/fail2tc.properties
 ip_addr=$1
-text_port=$2
-port_int=`grep ssh /etc/services | cut -f3 | cut -d"/" -f1 | uniq`
+text_port=${2%%,*}
+port_int=`grep $text_port /etc/services | cut -d"/" -f1 | tr -s " " "\t" | cut -f2 | sort | uniq | head -1`
 credentials=`grep credentials= $conf_file | cut -d= -f2`
 url=`grep url= $conf_file | cut -d= -f2`
 with_port_template=`grep indicator_with_port= $conf_file | cut -d= -f2`
 without_port_template=`grep indicator_without_port= $conf_file | cut -d= -f2`
 
 if [ -z "$port_int" ]; then
-  json_text=$without_port_template
+  indicator_json=$without_port_template
 else
-  json_text=$with_port_template
+  indicator_json=$with_port_template
 fi
 
-json_text=${json_text/@service_name@/$text_port}
-json_text=${json_text/@port_int@/$port_int}
-json_text=${json_text/@ip_addr@/$ip_addr}
+indicator_json=${indicator_json/@service_name@/$text_port}
+indicator_json=${indicator_json/@port_int@/$port_int}
+indicator_json=${indicator_json/@ip_addr@/$ip_addr}
 
-curl -XPOST -u $credentials -H "content-type: application/json" -H "accept: application/json" --basic -d "$json_text" $url/rest/indicators
+incident_json=`grep incident= $conf_file | cut -d= -f2`
+incident_json=${incident_json/@service_name@/$text_port}
+incident_json=${incident_json//@date@/`date +%FT%T.000%z`}
+incident_json=${incident_json/@indicator@/$indicator_json}
+
+echo $incident_json
+curl -XPOST -u $credentials -H "content-type: application/json" -H "accept: application/json" --basic -d "$incident_json" $url/rest/incidents
