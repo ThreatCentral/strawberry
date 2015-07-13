@@ -2,36 +2,85 @@
 
 # version: 1.0
 #
-# usage: fail2tc <ip> <port>
+# usage: 
+# fail2tc <ip> <port>
+# Report to Threat Central an IP and port brute force incident - as reported by
+# fail2ban.
+# The IP is in standard IPv4 format and the port is a comma separated list of 
+# port names as they appear in /etc/services. Only the first port is used from
+# the list because TC supports a single port per IP address.
 #
-# the IP is in standard IPv4 format and the port is a comma separated list of port names as they appear in
-# /etc/services. Only the first port is used from the list because TC supports a single port per IP address.
-#
-
+# fail2tc --ban
+# Receive a list of IP addresses banned by fail2tc devices in my community and
+# ban them for a longer period of time. This functionality requires nodejs. To
+# install nodejs: 
+# sudo apt-get install nodejs
+# the --ban must run as root because it needs access to iptables
 
 conf_file=/usr/local/fail2tc/fail2tc.properties
-ip_addr=$1
-text_port=${2%%,*}
-port_int=`grep $text_port /etc/services | cut -d"/" -f1 | tr -s " " "\t" | cut -f2 | sort | uniq | head -1`
 credentials=`grep credentials= $conf_file | cut -d= -f2`
 url=`grep url= $conf_file | cut -d= -f2`
-with_port_template=`grep indicator_with_port= $conf_file | cut -d= -f2`
-without_port_template=`grep indicator_without_port= $conf_file | cut -d= -f2`
 
-if [ -z "$port_int" ]; then
-  indicator_json=$without_port_template
+if [ "--ban" == "$1" ]; then
+	# banning incoming IP addresses from TC
+	last_updated=`date --date="3 days ago" +%FT%T.000%z` 
+	ip_list_file=`mktemp`
+    echo "fetching latest malicious IP addresses from Threat Central (since $last_updated)"
+    curl -XGET -u $credentials -H "content-type: application/json" -H "accept: application/json" --basic \
+    	$url/rest/summaries\?text=fail2ban\&observableTypes=IP\&entities=indicators\&lastUpdated=$last_updated > $ip_list_file
+
+   	js_script=`mktemp`
+   	cat << zZ > $js_script
+data=JSON.parse('`cat $ip_list_file | tr "\n" " "`');
+for(var resource in data.content) {
+  for(var observable in data.content[resource].resource.observables) {
+    console.log(data.content[resource].resource.observables[observable].value);
+  }
+}
+zZ
+ 	ip_addresses=`js $js_script`
+
+ 	echo "dropping existing block list and creating an empty one"
+ 	iptables -D INPUT -p tcp -m multiport --dports 22,80,443 -j fail2tc-evil-list
+ 	iptables -F fail2tc-evil-list
+ 	iptables -X fail2tc-evil-list
+ 	iptables -N fail2tc-evil-list
+ 	iptables -A fail2tc-evil-list -j RETURN
+ 	iptables -I INPUT -p tcp -m multiport --dports 22,80,443 -j fail2tc-evil-list
+
+ 	for ip_addr in $ip_addresses; do
+ 		echo "blocking access to ports 22, 80 and 443 for $ip_addr"
+ 		iptables -I fail2tc-evil-list -s $ip_addr -p tcp --destination-port 80 -j DROP
+ 		iptables -I fail2tc-evil-list -s $ip_addr -p tcp --destination-port 22 -j DROP
+ 		iptables -I fail2tc-evil-list -s $ip_addr -p tcp --destination-port 443 -j DROP
+ 	done
+
+   	rm $ip_list_file
+   	rm $js_script
 else
-  indicator_json=$with_port_template
+	# reporting new banned IP address
+	ip_addr=$1
+	text_port=${2%%,*}
+	port_int=`grep $text_port /etc/services | cut -d"/" -f1 | tr -s " " "\t" | cut -f2 | sort | uniq | head -1`
+	with_port_template=`grep indicator_with_port= $conf_file | cut -d= -f2`
+	without_port_template=`grep indicator_without_port= $conf_file | cut -d= -f2`
+
+	if [ -z "$port_int" ]; then
+	  indicator_json=$without_port_template
+	else
+	  indicator_json=$with_port_template
+	fi
+
+	indicator_json=${indicator_json/@service_name@/$text_port}
+	indicator_json=${indicator_json/@port_int@/$port_int}
+	indicator_json=${indicator_json/@ip_addr@/$ip_addr}
+
+	incident_json=`grep incident= $conf_file | cut -d= -f2`
+	incident_json=${incident_json/@service_name@/$text_port}
+	incident_json=${incident_json//@date@/`date +%FT%T.000%z`}
+	incident_json=${incident_json/@indicator@/$indicator_json}
+
+	echo $incident_json
+	curl -XPOST -u $credentials -H "content-type: application/json" -H "accept: application/json" --basic \
+		-d "$incident_json" $url/rest/incidents
 fi
-
-indicator_json=${indicator_json/@service_name@/$text_port}
-indicator_json=${indicator_json/@port_int@/$port_int}
-indicator_json=${indicator_json/@ip_addr@/$ip_addr}
-
-incident_json=`grep incident= $conf_file | cut -d= -f2`
-incident_json=${incident_json/@service_name@/$text_port}
-incident_json=${incident_json//@date@/`date +%FT%T.000%z`}
-incident_json=${incident_json/@indicator@/$indicator_json}
-
-echo $incident_json
-curl -XPOST -u $credentials -H "content-type: application/json" -H "accept: application/json" --basic -d "$incident_json" $url/rest/incidents
