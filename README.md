@@ -57,9 +57,16 @@ To do this run a cron as root with:
 
 ```bash
 
-  fail2tc --ban
+  sudo fail2tc --ban
 ```
 
 The above command will block all the IP addresses detected in your community in
 the last 3 days. You can run this cron any time you see fit, we recommend doing 
 it twice per day.
+
+This functionality requires that nodejs would be installed on your machine:
+
+```bash
+
+  sudo apt-get install nodejs
+```
