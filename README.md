@@ -16,7 +16,7 @@ sends the banned IP addresses to [Threat Central](https://threatcentral.io/tc)
   cd /usr/local
   sudo git clone https://github.com/amirkibbar/strawberry.git
   sudo ln -s strawberry fail2tc
-  sudo ln -s ln -s /usr/local/fail2tc/fail2tc.conf /etc/fail2ban/action.d
+  sudo ln -s /usr/local/fail2tc/fail2tc.conf /etc/fail2ban/action.d
 ```
 
 - Edit fail2tc.properties, change the credentials to your Threat Central 
