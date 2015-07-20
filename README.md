@@ -34,6 +34,8 @@ beneath the default action, this is what it should look like:
 
 # Upgrading
 
+## Upgrading Manually
+
 Assuming you installed fail2tc with git as described above, then to upgrade you
 just need to update your git repository. Since the credentials are in the 
 fail2tc.properties file, then this file has local changes which we need to first
@@ -46,6 +48,19 @@ stash, then pop:
   sudo git pull
   sudo git stash pop
 ```
+
+## Upgrading with the fail2tc script
+
+Starting with version 1.1 (check the header of the fail2tc script) it's also 
+possible to upgrade by running:
+
+```bash
+
+  /usr/local/fail2tc/fail2tc --upgrade
+```
+
+You must first upgrade to version 1.1, after that upgrade will be possible by
+running this script.
 
 # Using fail2tc to block IP addresses from your Threat Central community
 
