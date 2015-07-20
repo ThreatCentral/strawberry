@@ -58,6 +58,12 @@ zZ
 
    	rm $ip_list_file
    	rm $js_script
+else if [ "--upgrade" == "$1" ]; then
+	cd /usr/local/fail2tc
+	sudo -E git stash
+    sudo -E git pull
+    sudo -E git stash pop
+    cd -
 else
 	# reporting new banned IP address
 	ip_addr=$1

@@ -70,3 +70,21 @@ This functionality requires that nodejs would be installed on your machine:
 
   sudo apt-get install nodejs
 ```
+
+# fail2ban configuration recommendations
+
+We recommend you set the findtime to 3000 in the /etc/fail2ban/jail.conf file,
+and, in addition we recommend you add the following regex to your
+/etc/fail2ban/filter.d/ssh.conf:
+
+```
+
+  ^%(__prefix_line)sInvalid user .* from <HOST>s*$
+```
+
+The findtime increases the time between failures that is considered a brute
+force attack. We've found that there are a lot of slow scanner out there that
+purposly attempt to scan your servers very slowly to work around a fail2ban
+installation.
+
+The additional regex simply catches more ssh failures.
