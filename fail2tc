@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# version: 1.1
+# version: 1.1.1
 #
 # usage: 
 # fail2tc <ip> <port>
@@ -24,11 +24,12 @@ url=`grep url= $conf_file | cut -d= -f2`
 
 if [ "--ban" == "$1" ]; then
 	# banning incoming IP addresses from TC
-	last_updated=`date --date="3 days ago" +%FT%T.000%z` 
+	last_updated=`date --date="3 days ago" +%FT%T%z`
+	last_updated=${last_updated/+/%2B}
 	ip_list_file=`mktemp`
     echo "fetching latest malicious IP addresses from Threat Central (since $last_updated)"
     curl -XGET -u $credentials -H "content-type: application/json" -H "accept: application/json" --basic \
-    	$url/rest/summaries\?text=fail2ban\&observableTypes=IP\&entities=indicators\&lastUpdated=$last_updated > $ip_list_file
+    	$url/rest/summaries\?text=fail2ban\&observableTypes=IP\&entities=indicators\&lastUpdated=$last_updated- > $ip_list_file
 
    	js_script=`mktemp`
    	cat << zZ > $js_script
