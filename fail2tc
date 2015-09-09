@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# version: 1.1.1
+# version: 1.1.2
 #
 # usage: 
 # fail2tc <ip> <port>
@@ -29,7 +29,7 @@ if [ "--ban" == "$1" ]; then
 	ip_list_file=`mktemp`
     echo "fetching latest malicious IP addresses from Threat Central (since $last_updated)"
     curl -XGET -u $credentials -H "content-type: application/json" -H "accept: application/json" --basic \
-    	$url/rest/summaries\?text=fail2ban\&observableTypes=IP\&entities=indicators\&lastUpdated=$last_updated- > $ip_list_file
+    	$url/rest/summaries\?text=fail2ban\&observables=IP\&entities=indicators\&lastUpdated=$last_updated- > $ip_list_file
 
    	js_script=`mktemp`
    	cat << zZ > $js_script
