@@ -14,7 +14,7 @@ sends the banned IP addresses to [Threat Central](https://threatcentral.io/tc)
 
 ```bash
   cd /usr/local
-  sudo git clone https://github.com/amirkibbar/strawberry.git
+  sudo git clone https://github.com/ThreatCentral/strawberry.git
   sudo ln -s strawberry fail2tc
   sudo ln -s /usr/local/fail2tc/fail2tc.conf /etc/fail2ban/action.d
 ```
@@ -103,3 +103,7 @@ purposly attempt to scan your servers very slowly to work around a fail2ban
 installation.
 
 The additional regex simply catches more ssh failures.
+
+# License
+
+&copy; Copyright 2015 Hewlett Packard Enterprise Development LP Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0) Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
