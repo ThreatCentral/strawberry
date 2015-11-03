@@ -1,6 +1,6 @@
 # Strawberry
 A [fail2ban](http://www.fail2ban.org/wiki/index.php/Main_Page) action that 
-sends the banned IP addresses to [Threat Central](https://threatcentral.io/tc)
+sends the banned IP addresses to [HPE Security Threat Central](https://threatcentral.io/tc)
 
 # Installing
 
