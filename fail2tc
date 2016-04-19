@@ -9,7 +9,6 @@
 # KIND, either express or implied. See the License for the specific language
 # governing permissions and limitations under the License.
 
-# version: 1.1.3
 #
 # usage: 
 # fail2tc <ip> <port>
@@ -26,6 +25,7 @@
 # sudo apt-get install nodejs
 # the --ban must run as root because it needs access to iptables
 
+version="1.1.4"
 conf_file=/usr/local/fail2tc/fail2tc.properties
 credentials=`grep credentials= $conf_file`
 credentials=${credentials:12}
@@ -98,6 +98,6 @@ else
 	incident_json=${incident_json/@indicator@/$indicator_json}
 
 	echo $incident_json
-	curl -XPOST -u $credentials -H "content-type: application/json" -H "accept: application/json" --basic \
+	curl --user-agent "fail2ban $version" -XPOST -u $credentials -H "content-type: application/json" -H "accept: application/json" --basic \
 		-d "$incident_json" $url/rest/incidents
 fi
