@@ -4,13 +4,13 @@ sends the banned IP addresses to [HPE Security Threat Central](https://threatcen
 
 # Installing
 
-- Make sure git is installed on your Linux server:
+1. Make sure git is installed on your Linux server:
 ```bash
 
   sudo apt-get install -y git
 ```
 
-- Clone the repository and create links:
+2. Clone the repository and create links:
 
 ```bash
   cd /usr/local
@@ -19,7 +19,7 @@ sends the banned IP addresses to [HPE Security Threat Central](https://threatcen
   sudo ln -s /usr/local/fail2tc/fail2tc.conf /etc/fail2ban/action.d
 ```
 
-- Edit the fail2tc.properties file. Change the default credentials to your Threat Central 
+3. Edit the fail2tc.properties file. Change the default credentials to your Threat Central 
 credentials.
 - Edit the /etc/fail2ban/jail.conf file. Find line that says 'banaction' and add 'fail2tc'
 under the default action. This is what it should look like:
@@ -30,7 +30,7 @@ under the default action. This is what it should look like:
               fail2tc
 ```
 
-- Restart fail2ban.
+4. Restart fail2ban.
 
 # Upgrading
 
