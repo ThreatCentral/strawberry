@@ -96,8 +96,8 @@ In addition, we recommend that you add the following regex to your
 ```
 
 The findtime increases the time between failures that is considered a brute
-force attack. We found that there are a lot of slow scanners that
-deliberately attempt to scan your servers  slowly in order to work around a fail2ban
+force attack. We found that there are a lot of scanners that
+deliberately attempt to scan your servers slowly in order to work around a fail2ban
 installation.
 
 The additional regex simply catches more ssh failures.
