@@ -21,6 +21,7 @@ sends the banned IP addresses to [HPE Security Threat Central](https://threatcen
 
 3) Edit the fail2tc.properties file. Change the default credentials to your Threat Central 
 credentials.
+
 4) Edit the /etc/fail2ban/jail.conf file. Find the line that says 'banaction' and add 'fail2tc'
 under the default action. This is what it should look like:
 
